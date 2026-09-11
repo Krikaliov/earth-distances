@@ -1,5 +1,11 @@
-# ===== IDE =====
+# ===== BIN =====
+*.bin
+*.exe
+*.jar
 *.class
+
+# ===== IDE =====
+.idea/
 *.log
 *.swp
 *~

@@ -1,7 +1,5 @@
 package com.krikaliov.earthdistances;
 
-import java.io.IOException;
-
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
@@ -15,8 +13,6 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class App {
-  private final int width = 600;
-  private final int height = 800;
 
   public final String title = Main.APPNAME + " " + Main.VERSION;
 
@@ -29,15 +25,14 @@ public class App {
 
   private final String label = this.unions() + "\n--| " + this.title + " |--\n" + this.unions();
 
-  private long window = 0;
+  private long window;
 
-  private final EarthDataView earthDataView;
-
+  private final EarthDataView earthDataView = new EarthDataView(new EarthData());
+  private final PinDataViewer pinDataViewer = new PinDataViewer();
+  private final RenderEngine renderEngine;
   private final Logger logger = Logger.getInstance();
 
   public App(int width, int height) {
-    this.earthDataView = new EarthDataView(new EarthData());
-
     // Setup Console Manager
     this.logger.set(this.quitCmdFn, System.in, System.out);
 
@@ -55,7 +50,7 @@ public class App {
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
     // Create the window
-    this.window = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
+    this.window = glfwCreateWindow(width, height, this.title, NULL, NULL);
     if (this.window == NULL)
       throw new RuntimeException("Failed to create the GLFW window");
 
@@ -66,7 +61,7 @@ public class App {
     });
 
     // Setup a window close callback to make the app closes when the user clicks on the red cross.
-    glfwSetWindowCloseCallback(this.window, (win) -> { this.quitCmdFn.exec(new Argument[0]); });
+    glfwSetWindowCloseCallback(this.window, (win) -> this.quitCmdFn.exec(new Argument[0]));
 
     // Get the thread stack and push a new frame
     try (MemoryStack stack = stackPush()) {
@@ -90,9 +85,12 @@ public class App {
 
     // Make the window visible
     glfwShowWindow(this.window);
+
+    // Give window ref to render engine after setup
+    this.renderEngine = new RenderEngine(this.window);
   }
 
-  public void loop() throws IOException {
+  public void loop() {
     // This line is critical for LWJGL's interoperation with GLFW's
     // OpenGL context, or any context that is managed externally.
     // LWJGL detects the context that is current in the current thread,
@@ -100,8 +98,13 @@ public class App {
     // bindings available for use.
     GL.createCapabilities();
 
-    // Set the clear color
-    glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
+    // Once the GLCapabilities are created, set the clear color once for all
+    glClearColor(
+        EarthDataView.SPACEBOX_COLOR_RED,
+        EarthDataView.SPACEBOX_COLOR_BLUE,
+        EarthDataView.SPACEBOX_COLOR_GREEN,
+        EarthDataView.SPACEBOX_COLOR_ALPHA
+    );
 
     this.logger.log(this.label);
     this.logger.log("");
@@ -109,6 +112,7 @@ public class App {
     this.logger.log(this.earthDataView.toString());
     this.logger.log("");
 
+    this.logger.log(this.pinDataViewer.toString());
     this.logger.openConsole();
 
     // Run the rendering loop until the user has either :
@@ -116,13 +120,8 @@ public class App {
     // - pressed ESCAPE
     // - requested 'quit' command from the logger opened console
     while (!glfwWindowShouldClose(this.window)) {
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-      glfwSwapBuffers(this.window); // swap the color buffers
-
-      // Poll for window events. The key callback above will only be
-      // invoked during this call.
       glfwPollEvents();
+      renderEngine.render();
     }
 
 		// Free the window callbacks and destroy the window
@@ -133,15 +132,6 @@ public class App {
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
   }
-
-  public int[] getScreenSize() {
-    final int[] size = new int[2];
-    size[0] = this.width;
-    size[1] = this.height;
-    return size;
-  }
-
-  public boolean isAlive() { return !glfwWindowShouldClose(this.window); }
 
   @SuppressWarnings("rawtypes")
   public final CommandFunction quitCmdFn = (Argument[] x) -> {

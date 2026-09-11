@@ -9,8 +9,7 @@
     <version>dev</version>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.release>8</maven.compiler.release>
         <lwjgl.version>3.1.0</lwjgl.version>
         <lwjgl.natives>natives-linux</lwjgl.natives>
     </properties>
@@ -29,18 +28,13 @@
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-bgfx</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-egl</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-glfw</artifactId>
             <version>${lwjgl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.joml</groupId>
+            <artifactId>joml</artifactId>
+            <version>1.10.9</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
@@ -50,36 +44,6 @@
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-jemalloc</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-lmdb</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-nanovg</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-nfd</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-nuklear</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-openal</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-opencl</artifactId>
             <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
@@ -94,43 +58,7 @@
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-par</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-sse</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-stb</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-tinyfd</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-vulkan</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-xxhash</artifactId>
-            <version>${lwjgl.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-bgfx</artifactId>
             <version>${lwjgl.version}</version>
             <classifier>${lwjgl.natives}</classifier>
         </dependency>
@@ -143,66 +71,6 @@
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-jemalloc</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-lmdb</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-nanovg</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-nfd</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-nuklear</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-openal</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-par</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-sse</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-stb</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-tinyfd</artifactId>
-            <version>${lwjgl.version}</version>
-            <classifier>${lwjgl.natives}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-xxhash</artifactId>
             <version>${lwjgl.version}</version>
             <classifier>${lwjgl.natives}</classifier>
         </dependency>

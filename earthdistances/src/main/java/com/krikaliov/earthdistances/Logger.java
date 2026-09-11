@@ -6,92 +6,76 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 
-public class Logger extends Thread {
-  private static class Binder implements Runnable {
-    private CommandManager cmdManager = null;
-    private BufferedReader reader = null;
+public class Logger {
 
-    private InputStream input = null;
-    private PrintStream output = null;
+  private static final Logger INSTANCE = new Logger();
 
-    public boolean alive = false;
+  private Thread inputConsoleThread;
+  private volatile boolean running = false;
 
-    private final PinDataViewer pinViewer = new PinDataViewer();
+  private volatile CommandManager cmdManager;
+  private volatile BufferedReader reader;
+  private volatile PrintStream output;
 
-    public Binder() {}
+  private final PinDataViewer pinViewer = new PinDataViewer();
 
-    public synchronized void resetOutput(final PrintStream output, final CommandFunction quitAppFn) {
-      this.output = output;
-      if (this.output == null) {
-        this.cmdManager = null;
-      } else {
-        this.cmdManager = new CommandManager(output, quitAppFn);
-      }
-    }
+  private Logger() {}
 
-    public synchronized void resetInput(final InputStream input) {
-      this.input = input;
-      if (this.input == null) {
-        this.reader = null;
-      } else {
-        this.reader = new BufferedReader(new InputStreamReader(input));
-      }
-    }
+  public static Logger getInstance() { return INSTANCE; }
 
-    public synchronized final PrintStream output() { return this.output; }
-
-    @Override
-    public void run() {
-      try {
-        while (this.alive) {
-          if (this.reader != null) {
-            this.output.println(this.pinViewer);
-            final String raw = this.reader.readLine().trim();
-            if (raw != null && raw.length() > 0 && this.cmdManager != null) {
-              this.cmdManager.scan(raw);
-            }
-          }
-          sleep(100);
-        }
-      } catch (InterruptedException | IOException e) {
-        this.alive = false;
-      }
-    }
-  }
-  private static Binder binder = new Binder();
-
-  private static Logger inst = null;
-  private Logger() { super(binder); }
-  public final static synchronized Logger getInstance() {
-    if (inst == null) { inst = new Logger(); }
-    return inst;
-  }
-
-  public synchronized void set(final CommandFunction quitAppFn, final InputStream input, final PrintStream output) {
-    binder.resetOutput(output, quitAppFn);
-    binder.resetInput(input);
-  }
-
-  public synchronized final boolean isRunning() {
-    return binder.alive;
+  public void set(CommandFunction quitAppFn, InputStream input, PrintStream output) {
+    this.output = output;
+    this.cmdManager = (output != null) ? new CommandManager(output, quitAppFn) : null;
+    this.reader = (input != null) ? new BufferedReader(new InputStreamReader(input)) : null;
   }
 
   public synchronized void openConsole() {
-    if (!this.isRunning()) {
-      binder.alive = true;
-      super.start();
+    if (!running) {
+      running = true;
+      inputConsoleThread = new Thread(this::runInputConsole, "Logger-Console-Thread");
+      inputConsoleThread.start();
     }
   }
 
   public synchronized void closeConsole() {
-    binder.resetInput(null);
-    binder.resetOutput(null, null);
-    binder.alive = false;
-
-    super.interrupt();
+    if (running) {
+      running = false;
+      if (inputConsoleThread != null) {
+        inputConsoleThread.interrupt();
+        inputConsoleThread = null;
+      }
+      set(null, null, null);
+    }
   }
 
-  public synchronized void log(String msg) {
-    if (binder.output() != null) binder.output().println(msg);
+  private void runInputConsole() {
+    while (running && !Thread.currentThread().isInterrupted()) {
+      try {
+        if (output != null && reader != null) {
+          if (reader.ready()) {
+            String raw = reader.readLine();
+            if (raw != null && !raw.trim().isEmpty() && cmdManager != null) {
+              cmdManager.scan(raw.trim());
+              output.println(pinViewer);
+            }
+          } else {
+            Thread.sleep(50);
+          }
+        } else {
+          Thread.sleep(100);
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        break;
+      } catch (IOException ignored) {
+        if (Thread.currentThread().isInterrupted()) {
+          break;
+        }
+      }
+    }
+  }
+
+  public void log(String msg) {
+    if (output != null) output.println(msg);
   }
 }
